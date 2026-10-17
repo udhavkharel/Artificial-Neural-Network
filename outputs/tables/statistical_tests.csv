@@ -1,0 +1,8 @@
+comparison,wilcoxon_statistic,p_value,holm_threshold,significant_after_holm
+baseline_bpe_vs_morphology_aware_bpe,56462.0,8.989451902094271e-80,0.05,True
+baseline_bpe_vs_lexicon_seeded_bpe,60016219.0,0.0,0.0071428571428571435,True
+baseline_bpe_vs_lexicon_seeded_bpe_combinatorial,60012977.5,0.0,0.008333333333333333,True
+lexicon_seeded_bpe_vs_optimized_morph_tokenizer_matched_vocab,2888033.0,0.0,0.01,True
+baseline_bpe_vs_optimized_morph_tokenizer,10151900.0,0.0,0.0125,True
+mbert_vs_optimized_morph_tokenizer,4830984.0,0.0,0.016666666666666666,True
+xlmr_vs_optimized_morph_tokenizer,22955171.0,0.0,0.025,True

@@ -1,0 +1,6 @@
+optimized_fertility,optimized_reduction_vs_baseline_pct,requested_vocab_size,baseline_actual_vocab,morph_actual_vocab,baseline_fertility,morph_fertility,reduction_percentage
+2.0609,5.386,2000,2000,2000,2.1782,2.1815,-0.1528
+1.7475,6.0703,4000,4000,4000,1.8605,1.8654,-0.267
+1.5282,6.414,8000,8000,8000,1.633,1.6407,-0.4715
+1.3807,6.8632,16000,16000,16000,1.4825,1.4923,-0.6584
+1.2853,7.2555,32000,32000,32000,1.3859,1.3963,-0.7518

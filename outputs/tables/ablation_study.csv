@@ -1,0 +1,7 @@
+variant,n_words,mean_pieces_per_word,coverage_rate
+1_dictionary_only,300,1.0,0.0067
+2_greedy_longest_match,300,1.1867,1.0
+3_trie_candidate_generation,300,1.0067,1.0
+4_trie_plus_morph_rules,300,1.0067,1.0
+5_trie_plus_frequency_scoring,300,1.01,1.0
+6_full_hybrid,300,1.01,1.0

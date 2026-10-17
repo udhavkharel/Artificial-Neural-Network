@@ -1,0 +1,9 @@
+tokenizer,vocab_size,total_tokens,total_words,token_fertility,chars_per_token,mean_tokens_per_word,median_tokens_per_word,p95_tokens_per_word,unknown_token_rate
+baseline_bpe,8000,131494,80524,1.633,3.4486,1.633,1.0,4.0,0.0
+morphology_aware_bpe,8000,132114,80524,1.6407,3.4324,1.6407,1.0,4.0,0.0
+lexicon_seeded_bpe,43957,109207,80524,1.3562,4.1524,1.3562,1.0,3.0,0.0
+lexicon_seeded_bpe_combinatorial,49261,109196,80524,1.3561,4.1528,1.3561,1.0,3.0,0.0
+optimized_morph_tokenizer,8000,123060,80524,1.5282,3.6849,1.5282,1.0,3.0,0.0
+optimized_morph_tokenizer_matched_vocab,43957,101899,80524,1.2654,4.4502,1.2654,1.0,3.0,0.0
+mbert,119547,225601,80524,2.8017,2.01,2.8017,2.0,6.0,0.0
+xlmr,250002,153391,80524,1.9049,2.9563,1.9049,2.0,4.0,0.0

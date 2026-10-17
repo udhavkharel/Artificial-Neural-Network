@@ -1,0 +1,17 @@
+numpy>=1.24
+pyarrow>=14
+huggingface_hub>=0.20
+scipy>=1.10
+pandas>=2.0
+matplotlib>=3.7
+tokenizers>=0.15
+transformers>=4.30
+kagglehub>=0.2
+ipywidgets>=8.0
+jupyter>=1.0
+nbclient>=0.8
+nbformat>=5.9
+ipykernel>=6.25
+pytest>=7.4
+fastapi>=0.110
+uvicorn>=0.27

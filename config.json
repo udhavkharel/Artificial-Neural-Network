@@ -1,0 +1,38 @@
+{
+  "random_seed": 42,
+  "corpus": {
+    "mode": "synthetic",
+    "note": "Set to 'real' and provide Kaggle credentials to use OSCAR Corpus Nepali via kagglehub; see README.md.",
+    "sample_size": 4000,
+    "split_ratio": [0.8, 0.1, 0.1]
+  },
+  "tokenizer": {
+    "vocab_size": 1200,
+    "min_frequency": 1,
+    "vocabulary_sweep_sizes": [300, 600, 1200, 2400],
+    "special_tokens": ["<unk>", "<pad>", "<s>", "</s>"],
+    "morphology_boundary_marker": "▁"
+  },
+  "segmentation": {
+    "max_candidates": 25,
+    "max_depth": 6,
+    "default_weights": {
+      "whole_word_known": 5.0,
+      "root_known": 2.0,
+      "affix_known": 1.0,
+      "frequency_log": 0.5,
+      "segment_count_penalty": 0.4,
+      "unknown_penalty": 3.0
+    }
+  },
+  "evaluation": {
+    "bootstrap_n_resamples": 2000,
+    "bootstrap_ci_level": 0.95,
+    "holm_alpha": 0.05,
+    "ablation_sample_size": 300
+  },
+  "pretrained_tokenizers": {
+    "mbert": {"model_id": "bert-base-multilingual-cased", "revision": "main"},
+    "xlmr": {"model_id": "xlm-roberta-base", "revision": "main"}
+  }
+}

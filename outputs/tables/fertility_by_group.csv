@@ -1,0 +1,8 @@
+grouping,group,n_words,baseline_mean_tokens,morph_mean_tokens
+length,medium(4-6),37580,1.4677,1.4789
+length,long(7+),26269,2.1598,2.1677
+length,short(<=3),16675,1.1754,1.1751
+eval_group,unknown_root,77654,1.653,1.6516
+eval_group,known_components,2277,1.065,1.285
+eval_group,known_word,574,1.0645,1.4582
+eval_group,mixed_script,19,5.2105,5.2105

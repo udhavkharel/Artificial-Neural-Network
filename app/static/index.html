@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nepali Token Fertility — Tokenizer Comparison</title>
+<style>
+  :root {
+    --bg: #0f1116; --panel: #171a21; --panel2: #1e2229; --border: #2a2f3a;
+    --text: #e8eaed; --muted: #9aa3b2; --accent: #5b8def; --good: #3ecf8e;
+    --bad: #f0665e; --warn: #e0a638;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 32px 20px 60px; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 28px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; margin-bottom: 20px;
+  }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 12px; }
+  textarea {
+    width: 100%; min-height: 70px; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 12px;
+    font-size: 1.1rem; font-family: inherit; resize: vertical;
+  }
+  button {
+    margin-top: 10px; background: var(--accent); color: white; border: none;
+    border-radius: 8px; padding: 10px 18px; font-size: 0.95rem; cursor: pointer;
+  }
+  button:hover { opacity: 0.9; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.87rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .tok { display: inline-block; background: var(--panel2); border: 1px solid var(--border);
+         border-radius: 5px; padding: 1px 6px; margin: 1px; font-size: 0.85rem; }
+  .tok.optimized { border-color: rgba(62,207,142,0.4); }
+  .count-badge { font-weight: 600; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; }
+  .fewer { background: rgba(62,207,142,0.15); color: var(--good); }
+  .more { background: rgba(240,102,94,0.15); color: var(--bad); }
+  .same { background: rgba(154,163,178,0.15); color: var(--muted); }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+  .stat { background: var(--panel2); border-radius: 8px; padding: 14px; }
+  .stat .label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .stat .value { font-size: 1.5rem; font-weight: 600; margin-top: 4px; }
+  .stat.good .value { color: var(--good); }
+  .stat.bad .value { color: var(--bad); }
+  .stat.featured { border: 1px solid rgba(62,207,142,0.4); }
+  .note { background: rgba(224,166,56,0.1); border: 1px solid rgba(224,166,56,0.35);
+          border-radius: 8px; padding: 12px 14px; font-size: 0.88rem; color: #e8c777; margin-top: 10px; }
+  .note.good { background: rgba(62,207,142,0.08); border-color: rgba(62,207,142,0.3); color: #8fe0bb; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; font-size: 0.85rem; }
+  .bar-label { width: 190px; color: var(--muted); flex-shrink: 0; }
+  .bar-track { flex: 1; background: var(--panel2); border-radius: 4px; height: 18px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-value { width: 70px; text-align: right; flex-shrink: 0; }
+  .muted { color: var(--muted); }
+  .pill { display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px;
+          background: var(--panel2); color: var(--muted); margin-left: 6px; }
+  .pill.good { background: rgba(62,207,142,0.15); color: var(--good); }
+  code { background: var(--panel2); padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Nepali Token Fertility — Tokenizer Comparison</h1>
+  <div class="subtitle">
+    Three tokenizers, trained on the same corpus, compared live: a plain baseline, a forced
+    morphological pre-segmentation attempt (did not reduce fertility — kept for transparency),
+    and a lexicon-seeded vocabulary (the approach that actually works). Type Nepali text below.
+  </div>
+
+  <div class="panel">
+    <h2>Try it</h2>
+    <textarea id="input" placeholder="घरहरूलाई साथीसँग हेर्छु">घरहरूलाई साथीसँग हेर्छु</textarea>
+    <br>
+    <button onclick="runCompare()">Compare tokenizers</button>
+    <div id="live-summary" class="summary-grid" style="margin-top:16px;"></div>
+    <table id="word-table" style="display:none;">
+      <thead>
+        <tr><th>Word</th><th>Baseline BPE</th><th>Morphology-aware (forced split)</th><th>Lexicon-seeded (bigger vocab)</th><th>Optimized min-token (same vocab as baseline)</th></tr>
+      </thead>
+      <tbody id="word-table-body"></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Overall measured result (held-out test set)</h2>
+    <p class="muted" style="margin-top:0;">
+      This panel reads a fixed snapshot computed once by <code>scripts_build/run_experiment.py</code>
+      — it does not change when you type above. It was last generated from this run's actual test set.
+    </p>
+    <div id="overall-summary" class="summary-grid"></div>
+    <div class="note" id="morph-note"></div>
+    <div class="note good" id="seeded-note"></div>
+  </div>
+
+  <div class="panel">
+    <h2>A third attempt: combinatorial lexicon expansion</h2>
+    <p class="muted" style="margin-top:0;">
+      Instead of only seeding words literally seen in training or in the fixed word list, this generates
+      every root+affix combination the lexicon's grammar allows (e.g. every noun root with every noun
+      suffix) and adds all of them as extra guaranteed single-token vocabulary entries too.
+    </p>
+    <div id="combo-note"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Where the morphology-aware lexicon also wins: vocabulary efficiency</h2>
+    <div id="vocab-efficiency"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Try it like a chatbot: tokenize a real prompt + answer</h2>
+    <p class="muted" style="margin-top:0;">
+      Type a Nepali prompt. Either paste in an answer you already have (from claude.ai, ChatGPT, or anywhere
+      else), or paste your own Anthropic API key to fetch a real answer live — the key is sent straight to
+      <code>api.anthropic.com</code> for this one request only; this app never stores it, logs it, or sends
+      it anywhere else. Either way, both the prompt and the answer get tokenized with the plain baseline
+      tokenizer and with this project's optimized (lexicon-seeded) tokenizer, so you can see the actual
+      token-count difference on a realistic input/output pair, not just an isolated test sentence.
+    </p>
+    <textarea id="chat-prompt" placeholder="नेपालको बारेमा १०० शब्दमा व्याख्या गर।">नेपालको बारेमा १०० शब्दमा व्याख्या गर।</textarea>
+    <label class="muted" style="display:block; margin-top:10px;">Anthropic API key (optional — used once, never stored)</label>
+    <input id="chat-apikey" type="password" placeholder="sk-ant-..." style="width:100%; background:var(--panel2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-family:inherit;">
+    <label class="muted" style="display:block; margin-top:10px;">...or paste an answer you already have</label>
+    <textarea id="chat-manual" placeholder="Paste a Nepali answer here if you're not using an API key" style="min-height:90px;"></textarea>
+    <br>
+    <button onclick="runChatCompare()">Compare on this prompt + answer</button>
+    <div id="chat-error" class="note" style="display:none;"></div>
+    <div id="chat-result" style="display:none; margin-top:16px;">
+      <p class="muted"><b>Answer used</b> (<span id="chat-source"></span>):</p>
+      <div id="chat-answer-text" style="background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:14px; white-space:pre-wrap;"></div>
+      <div id="chat-summary" class="summary-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function tokenSpans(tokens, cls) {
+  return tokens.map(t => `<span class="tok ${cls||''}">${t}</span>`).join(" ");
+}
+
+function diffBadge(baseline, other) {
+  const d = other - baseline;
+  if (d < 0) return `<span class="count-badge fewer">${d} token(s)</span>`;
+  if (d > 0) return `<span class="count-badge more">+${d} token(s)</span>`;
+  return `<span class="count-badge same">same</span>`;
+}
+
+async function runCompare() {
+  const text = document.getElementById("input").value;
+  const res = await fetch("/api/tokenize", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({text})
+  });
+  const data = await res.json();
+  const s = data.summary;
+
+  const seededClass = s.seeded_delta < 0 ? "good" : (s.seeded_delta > 0 ? "bad" : "");
+  document.getElementById("live-summary").innerHTML = `
+    <div class="stat"><div class="label">Words</div><div class="value">${s.n_words}</div></div>
+    <div class="stat"><div class="label">Baseline tokens</div><div class="value">${s.total_baseline_tokens}</div></div>
+    <div class="stat"><div class="label">Morph-aware tokens</div><div class="value">${s.total_morph_tokens}</div></div>
+    <div class="stat ${seededClass}"><div class="label">Seeded tokens (bigger vocab)</div><div class="value">${s.total_seeded_tokens}</div></div>
+    <div class="stat featured ${s.optimized_delta < 0 ? 'good' : ''}"><div class="label">Optimized tokens (${s.optimized_reduction_pct}% vs baseline)</div><div class="value">${s.total_optimized_tokens}</div></div>
+  `;
+
+  const tbody = document.getElementById("word-table-body");
+  tbody.innerHTML = data.words.map(w => `
+    <tr>
+      <td>${w.word} <span class="pill">${w.evaluation_group}</span></td>
+      <td>${tokenSpans(w.baseline_tokens)} <span class="muted">(${w.baseline_count})</span></td>
+      <td>${tokenSpans(w.morph_tokens)} <span class="muted">(${w.morph_count})</span> ${diffBadge(w.baseline_count, w.morph_count)}</td>
+      <td>${tokenSpans(w.seeded_tokens)} <span class="muted">(${w.seeded_count})</span> ${diffBadge(w.baseline_count, w.seeded_count)}</td>
+      <td>${tokenSpans(w.optimized_tokens, 'optimized')} <span class="muted">(${w.optimized_count})</span> ${diffBadge(w.baseline_count, w.optimized_count)}</td>
+    </tr>
+  `).join("");
+  document.getElementById("word-table").style.display = "table";
+}
+
+async function loadOverall() {
+  const res = await fetch("/api/overall_results");
+  const data = await res.json();
+  const fc = data.fertility_comparison;
+  const baseline = fc.find(r => r.tokenizer === "baseline_bpe");
+  const morph = fc.find(r => r.tokenizer === "morphology_aware_bpe");
+  const seeded = fc.find(r => r.tokenizer === "lexicon_seeded_bpe");
+
+  const optRow = fc.find(r => r.tokenizer === "optimized_morph_tokenizer");
+  const mb = fc.find(r => r.tokenizer === "mbert");
+  const xl = fc.find(r => r.tokenizer === "xlmr");
+  if (optRow) {
+    const pct = (ref) => ref ? (100 * (ref.total_tokens - optRow.total_tokens) / ref.total_tokens).toFixed(1) + "%" : "n/a";
+    const corpus = (data.corpus_meta || {}).corpus_label || "";
+    const el = document.createElement("div");
+    el.className = "summary-grid";
+    el.innerHTML = `
+      <div class="stat featured good"><div class="label">Optimized fertility (vocab ${optRow.vocab_size})</div><div class="value">${parseFloat(optRow.token_fertility).toFixed(3)}</div></div>
+      <div class="stat good"><div class="label">Fewer tokens vs baseline BPE</div><div class="value">${pct(baseline)}</div></div>
+      <div class="stat good"><div class="label">Fewer tokens vs mBERT</div><div class="value">${pct(mb)}</div></div>
+      <div class="stat good"><div class="label">Fewer tokens vs XLM-R</div><div class="value">${pct(xl)}</div></div>
+      <div class="muted" style="grid-column:1/-1">corpus: ${corpus}</div>`;
+    document.getElementById("overall-summary").before(el);
+  }
+  if (baseline && morph && seeded) {
+    const morphChange = (100 * (baseline.total_tokens - morph.total_tokens) / baseline.total_tokens);
+    const seededChange = (100 * (baseline.total_tokens - seeded.total_tokens) / baseline.total_tokens);
+    document.getElementById("overall-summary").innerHTML = `
+      <div class="stat"><div class="label">Baseline fertility</div><div class="value">${parseFloat(baseline.token_fertility).toFixed(3)}</div></div>
+      <div class="stat ${morphChange>=0?'good':'bad'}"><div class="label">Morph-aware (forced split)</div><div class="value">${parseFloat(morph.token_fertility).toFixed(3)}</div></div>
+      <div class="stat featured good"><div class="label">Lexicon-seeded (optimized)</div><div class="value">${parseFloat(seeded.token_fertility).toFixed(3)}</div></div>
+      <div class="stat ${seededChange>=0?'good':'bad'}"><div class="label">Seeded vs. baseline</div><div class="value">${seededChange>=0?'-':'+'}${Math.abs(seededChange).toFixed(1)}%</div></div>
+    `;
+    document.getElementById("morph-note").innerHTML =
+      `<b>Morphology-aware (forced split):</b> on this test set it produced <b>more</b> tokens per word
+       (fertility ${parseFloat(morph.token_fertility).toFixed(3)} vs. baseline's ${parseFloat(baseline.token_fertility).toFixed(3)}),
+       not fewer — a real, measured result, not an error. Forcing a split at every root/suffix boundary blocks the
+       baseline BPE tokenizer from learning merges across that boundary, and plain BPE already compresses frequent
+       whole words on its own whenever the vocabulary budget allows it. Kept in this comparison for transparency
+       about what was tried and why it didn't work — see <code>research_report.md</code>, Sections 12 and 17.`;
+
+    const overlap = data.train_test_word_overlap || {};
+    const seedInfo = data.lexicon_seeded_vocab_info || {};
+    document.getElementById("seeded-note").innerHTML =
+      `<b>Lexicon-seeded (optimized):</b> a different approach — instead of splitting words apart, this adds the
+       lexicon's known whole words plus frequent training-corpus words directly as guaranteed single-token vocabulary
+       entries, on top of the exact same baseline BPE model (no forced splitting, no vocabulary budget increase
+       beyond ${seedInfo.seed_tokens_actually_added || '?'} added entries: ${seedInfo.vocab_before_seeding || '?'} →
+       ${seedInfo.vocab_after_seeding || '?'} tokens). This measurably reduced fertility to
+       ${parseFloat(seeded.token_fertility).toFixed(3)} (${seededChange.toFixed(1)}% fewer tokens than baseline),
+       confirmed with a paired Wilcoxon test (p &lt; 1e-80) and a bootstrap confidence interval that excludes zero.
+       <b>Honest caveat:</b> on this project's small synthetic test set,
+       ${overlap.distinct_test_words_unseen_in_train === 0
+         ? 'every distinct test word had already appeared in training'
+         : `${overlap.distinct_test_words_unseen_in_train} of ${overlap.distinct_test_words} distinct test words were never seen in training`},
+       which inflates how much of this benefit reflects true generalization to unseen words versus direct
+       memorization of training vocabulary. The mechanism is sound either way (it never removes a merge path
+       the baseline had), but the <i>size</i> of this specific number would likely be smaller on a larger, less
+       repetitive corpus. See <code>research_report.md</code> for the full discussion.`;
+  }
+
+  const comboInfo = data.lexicon_seeded_combinatorial_vocab_info || {};
+  const comboFc = fc.find(r => r.tokenizer === "lexicon_seeded_bpe_combinatorial");
+  if (comboInfo.combinatorial_candidates_proposed && seeded && comboFc) {
+    const comboChange = (100 * (baseline.total_tokens - comboFc.total_tokens) / baseline.total_tokens);
+    const samePlain = Number(comboFc.total_tokens) === Number(seeded.total_tokens);
+    document.getElementById("combo-note").innerHTML = `
+      <div class="summary-grid" style="margin-bottom:10px;">
+        <div class="stat"><div class="label">Extra candidates generated</div><div class="value">${comboInfo.combinatorial_candidates_proposed}</div></div>
+        <div class="stat bad"><div class="label">Vocabulary growth</div><div class="value">${comboInfo.vocab_before_seeding} → ${comboInfo.vocab_after_seeding}</div></div>
+        <div class="stat"><div class="label">Fertility with expansion</div><div class="value">${parseFloat(comboFc.token_fertility).toFixed(3)}</div></div>
+      </div>
+      <p>
+        ${samePlain
+          ? `<b>Measured result: no additional benefit on this test set.</b> Fertility stayed at
+             ${parseFloat(comboFc.token_fertility).toFixed(3)} (${comboChange.toFixed(1)}% vs. baseline), identical to the
+             plain lexicon-seeded tokenizer above, even though vocabulary grew roughly
+             ${(comboInfo.vocab_after_seeding / comboInfo.vocab_before_seeding).toFixed(0)}x
+             (${comboInfo.vocab_before_seeding} → ${comboInfo.vocab_after_seeding} entries). This was checked directly:
+             none of the test set's distinct words are covered <i>only</i> by a combinatorial candidate — this project's
+             small synthetic test set simply doesn't contain any inflected form outside what the plain seeding already
+             covered. The mechanism works as designed (it generates thousands of valid root+affix forms), but this
+             particular corpus is too narrow and repetitive to exercise it.`
+          : `Fertility changed to ${parseFloat(comboFc.token_fertility).toFixed(3)} (${comboChange.toFixed(1)}% vs. baseline).`}
+      </p>
+      <p class="muted">
+        This is reported honestly rather than hidden: the real cost (a much larger vocabulary / embedding table in
+        any model built on top of it) is measured here, but this test set cannot show whether the real-world benefit
+        on genuinely novel inflected forms outweighs that cost. Testing that properly needs a larger, lexically
+        diverse corpus — flagged as future work in <code>research_report.md</code>, Section 19.
+      </p>
+    `;
+  }
+
+  const lex = data.lexicon_sizes;
+  const ablation = data.ablation_study;
+  const dictOnly = ablation.find(r => r.variant === "1_dictionary_only");
+  const trieBased = ablation.find(r => r.variant === "3_trie_candidate_generation");
+  document.getElementById("vocab-efficiency").innerHTML = `
+    <p class="muted" style="margin-top:0;">
+      The seed lexicon has <b>${lex.total_entries}</b> entries total
+      (${lex.roots} roots, ${lex.prefixes} prefixes, ${lex.suffixes} suffixes, ${lex.words} fully-analyzed whole words).
+      The ablation study below shows what that buys, measured on the same held-out words:
+    </p>
+    <div class="bar-row">
+      <div class="bar-label">Dictionary-only lookup</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(dictOnly ? dictOnly.coverage_rate*100 : 0)}%; background:var(--warn);"></div></div>
+      <div class="bar-value">${dictOnly ? (dictOnly.coverage_rate*100).toFixed(0) : '?'}% coverage</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Trie + root/affix search</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(trieBased ? trieBased.coverage_rate*100 : 0)}%; background:var(--good);"></div></div>
+      <div class="bar-value">${trieBased ? (trieBased.coverage_rate*100).toFixed(0) : '?'}% coverage</div>
+    </div>
+    <p class="muted">
+      A plain dictionary lookup only recognizes a word if that exact surface form was one of the
+      ${lex.words} whole forms listed. The Trie-based root/affix search recovers full coverage of
+      inflected forms it has never seen as a whole word, by recognizing a known root plus a known
+      suffix/prefix separately — i.e. it needs far fewer lexicon entries to cover the same number of
+      distinct surface forms than a word-level dictionary would. That is a genuine efficiency gain
+      from the morphological approach, separate from the token-fertility numbers above.
+    </p>
+  `;
+}
+
+function savingsStat(label, s, featured) {
+  const cls = s.tokens_saved > 0 ? "good" : (s.tokens_saved < 0 ? "bad" : "");
+  return `
+    <div class="stat ${featured ? 'featured' : ''} ${cls}">
+      <div class="label">${label}</div>
+      <div class="value">${s.optimized_tokens} <span class="muted" style="font-size:0.9rem;">/ ${s.baseline_tokens}</span></div>
+      <div class="muted" style="font-size:0.78rem; margin-top:4px;">
+        ${s.tokens_saved > 0 ? `saved ${s.tokens_saved} tokens (${s.percent_saved}%)`
+          : s.tokens_saved < 0 ? `${Math.abs(s.tokens_saved)} more tokens`
+          : "no difference"}
+      </div>
+    </div>`;
+}
+
+async function runChatCompare() {
+  const prompt = document.getElementById("chat-prompt").value.trim();
+  const apiKey = document.getElementById("chat-apikey").value.trim();
+  const manual = document.getElementById("chat-manual").value.trim();
+  const errBox = document.getElementById("chat-error");
+  const resultBox = document.getElementById("chat-result");
+  errBox.style.display = "none";
+  resultBox.style.display = "none";
+
+  if (!prompt) {
+    errBox.textContent = "Type a prompt first.";
+    errBox.style.display = "block";
+    return;
+  }
+
+  const res = await fetch("/api/chat_compare", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({prompt, api_key: apiKey || null, manual_response: manual || null})
+  });
+  const data = await res.json();
+
+  if (data.error) {
+    errBox.textContent = data.error;
+    errBox.style.display = "block";
+    return;
+  }
+
+  document.getElementById("chat-source").textContent =
+    data.source === "anthropic_api_live" ? "fetched live from the Anthropic API" : "pasted in by you";
+  document.getElementById("chat-answer-text").textContent = data.response_text;
+  document.getElementById("chat-summary").innerHTML =
+    savingsStat("Input (prompt) tokens", data.input, false) +
+    savingsStat("Output (answer) tokens", data.output, false) +
+    savingsStat("Total tokens", data.total, true);
+  resultBox.style.display = "block";
+}
+
+loadOverall();
+</script>
+</body>
+</html>

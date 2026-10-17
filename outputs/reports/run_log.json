@@ -1,0 +1,148 @@
+{
+  "steps": [],
+  "corpus_meta": {
+    "corpus_label": "real_nepali_wikipedia",
+    "n_total": 60000,
+    "n_train": 48000,
+    "n_val": 6000,
+    "n_test": 6000,
+    "seed": 42,
+    "split_ratio": "80/10/10"
+  },
+  "tokenizer_training": {
+    "vocab_size": 8000,
+    "baseline_train_seconds": 1.032880329999898,
+    "morphology_aware_train_seconds": 1.6386253760001637,
+    "lexicon_seeded_train_seconds": 1.2423095579997607,
+    "lexicon_seeded_combinatorial_train_seconds": 1.3749028330003057,
+    "baseline_actual_vocab": 8000,
+    "morphology_aware_actual_vocab": 8000,
+    "lexicon_seeded_vocab_info": {
+      "vocab_before_seeding": 8000,
+      "vocab_after_seeding": 43957,
+      "seed_candidates_proposed": 41255,
+      "seed_tokens_actually_added": 41255,
+      "min_train_frequency": 2,
+      "combinatorial_expansion_enabled": false,
+      "combinatorial_candidates_proposed": 0,
+      "frequent_literal_candidates": 38229,
+      "frequent_stripped_candidates": 35736,
+      "lexicon_word_candidates": 59
+    },
+    "lexicon_seeded_combinatorial_vocab_info": {
+      "vocab_before_seeding": 8000,
+      "vocab_after_seeding": 49261,
+      "seed_candidates_proposed": 46559,
+      "seed_tokens_actually_added": 46559,
+      "min_train_frequency": 2,
+      "combinatorial_expansion_enabled": true,
+      "combinatorial_candidates_proposed": 5500,
+      "frequent_literal_candidates": 38229,
+      "frequent_stripped_candidates": 35736,
+      "lexicon_word_candidates": 59
+    },
+    "optimized_train_seconds": 9.157971941000142,
+    "optimized_vocab_info": {
+      "initial_pool": 21714,
+      "protected": 436,
+      "prune_rounds": 8,
+      "final_vocab_incl_special": 8000
+    },
+    "optimized_matched_vocab_info": {
+      "initial_pool": 115990,
+      "protected": 436,
+      "prune_rounds": 8,
+      "final_vocab_incl_special": 43957
+    }
+  },
+  "train_test_word_overlap": {
+    "distinct_test_words": 27407,
+    "distinct_test_words_unseen_in_train": 10269,
+    "distinct_test_words_unseen_fraction": 0.3747
+  },
+  "pretrained_tokenizers": {
+    "mbert": {
+      "model_id": "bert-base-multilingual-cased",
+      "revision": "main",
+      "algorithm": "WordPiece",
+      "library": "transformers",
+      "library_version": "5.19.0",
+      "status": "loaded",
+      "error": null
+    },
+    "xlmr": {
+      "model_id": "xlm-roberta-base",
+      "revision": "main",
+      "algorithm": "SentencePiece-Unigram",
+      "library": "transformers",
+      "library_version": "5.19.0",
+      "status": "loaded",
+      "error": null
+    }
+  },
+  "reduction_percentage_morph_vs_baseline": -0.4715044032427335,
+  "reduction_percentage_seeded_vs_baseline": 16.949062314630325,
+  "reduction_percentage_seeded_combinatorial_vs_baseline": 16.95742771533302,
+  "reduction_percentage_optimized_vs": {
+    "baseline_bpe": 6.41,
+    "morphology_aware_bpe": 6.85,
+    "lexicon_seeded_bpe": -12.69,
+    "lexicon_seeded_bpe_combinatorial": -12.7,
+    "optimized_morph_tokenizer_matched_vocab": -20.77,
+    "mbert": 45.45,
+    "xlmr": 19.77
+  },
+  "reduction_percentage_optimized_matched_vocab_vs_seeded": 6.69,
+  "vocabulary_sweep": [
+    {
+      "optimized_fertility": 2.0609,
+      "optimized_reduction_vs_baseline_pct": 5.386,
+      "requested_vocab_size": 2000,
+      "baseline_actual_vocab": 2000,
+      "morph_actual_vocab": 2000,
+      "baseline_fertility": 2.1782,
+      "morph_fertility": 2.1815,
+      "reduction_percentage": -0.1528
+    },
+    {
+      "optimized_fertility": 1.7475,
+      "optimized_reduction_vs_baseline_pct": 6.0703,
+      "requested_vocab_size": 4000,
+      "baseline_actual_vocab": 4000,
+      "morph_actual_vocab": 4000,
+      "baseline_fertility": 1.8605,
+      "morph_fertility": 1.8654,
+      "reduction_percentage": -0.267
+    },
+    {
+      "optimized_fertility": 1.5282,
+      "optimized_reduction_vs_baseline_pct": 6.414,
+      "requested_vocab_size": 8000,
+      "baseline_actual_vocab": 8000,
+      "morph_actual_vocab": 8000,
+      "baseline_fertility": 1.633,
+      "morph_fertility": 1.6407,
+      "reduction_percentage": -0.4715
+    },
+    {
+      "optimized_fertility": 1.3807,
+      "optimized_reduction_vs_baseline_pct": 6.8632,
+      "requested_vocab_size": 16000,
+      "baseline_actual_vocab": 16000,
+      "morph_actual_vocab": 16000,
+      "baseline_fertility": 1.4825,
+      "morph_fertility": 1.4923,
+      "reduction_percentage": -0.6584
+    },
+    {
+      "optimized_fertility": 1.2853,
+      "optimized_reduction_vs_baseline_pct": 7.2555,
+      "requested_vocab_size": 32000,
+      "baseline_actual_vocab": 32000,
+      "morph_actual_vocab": 32000,
+      "baseline_fertility": 1.3859,
+      "morph_fertility": 1.3963,
+      "reduction_percentage": -0.7518
+    }
+  ]
+}

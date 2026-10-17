@@ -1,0 +1,9 @@
+{
+  "corpus_label": "real_nepali_wikipedia",
+  "n_total": 60000,
+  "n_train": 48000,
+  "n_val": 6000,
+  "n_test": 6000,
+  "seed": 42,
+  "split_ratio": "80/10/10"
+}

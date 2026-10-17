@@ -1,0 +1,16 @@
+surface_form,root,prefix_sequence,suffix_sequence,grammatical_category,frequency,source,confidence
+अ,,अ,,derivational-prefix,700,manual_seed,0.85
+अन्,,अन्,,derivational-prefix,500,manual_seed,0.8
+सु,,सु,,derivational-prefix,600,manual_seed,0.85
+दुर्,,दुर्,,derivational-prefix,450,manual_seed,0.8
+प्र,,प्र,,derivational-prefix,600,manual_seed,0.75
+वि,,वि,,derivational-prefix,650,manual_seed,0.75
+निर्,,निर्,,derivational-prefix,500,manual_seed,0.75
+उप,,उप,,derivational-prefix,480,manual_seed,0.8
+अति,,अति,,derivational-prefix,520,manual_seed,0.85
+अधि,,अधि,,derivational-prefix,420,manual_seed,0.75
+अनु,,अनु,,derivational-prefix,460,manual_seed,0.75
+परा,,परा,,derivational-prefix,300,manual_seed,0.7
+सम्,,सम्,,derivational-prefix,400,manual_seed,0.7
+स्व,,स्व,,derivational-prefix,400,manual_seed,0.8
+पुन,,पुन,,derivational-prefix,450,manual_seed,0.8
